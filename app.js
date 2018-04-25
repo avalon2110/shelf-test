@@ -28,16 +28,19 @@ app.get('/', (req, res) => {
   res.send('Hello world');
 });
 
-app.get('/search/:q/:ll', (req, res) => {
+app.get('/search', (req, res) => {
+  console.log(req.query);
+  // return;
   request({
     url: 'https://api.foursquare.com/v2/venues/search',
     method: "GET",
     qs: {
       client_id: config.client_id,
       client_secret: config.client_secret,
-      ll: '40.7243,-74.0018',
+      ll: req.query.lat + ',' + req.query.lng,
+      // ll: '40.7243,-74.0018',
       v: '20180323',
-      query: req.params.q,
+      query: req.params.term,
       limit: 4
     }
   }, (err, response) => {
@@ -45,8 +48,9 @@ app.get('/search/:q/:ll', (req, res) => {
       console.log(err);
     } else {
       let query = new Query();
-      query.query = req.params.q;
-      query.ll = req.params.ll;
+      query.query = req.query.term;
+      query.lat = req.query.lat;
+      query.lng = req.query.lng;
       // query.distance = response.body.
       query.save();
       res.send(JSON.parse(response.body));

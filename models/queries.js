@@ -6,7 +6,11 @@ const querySchema = new Schema({
     type:String,
     required:true
   },
-  ll: {
+  lat: {
+    type: String,
+    required: true
+  },
+  lng: {
     type: String,
     required: true
   },
