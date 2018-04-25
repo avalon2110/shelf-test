@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "jest --watch validation"
+    "test": "jest validation"
   },
   "author": "",
   "license": "ISC",
