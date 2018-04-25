@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const config = require('./config');
 const csv = require('./csv');
+const checkQuery = require('./validation');
 const app = express();
 
 app.use(bodyParser.json());
@@ -30,9 +31,16 @@ app.get('/', (req, res) => {
 });
 
 app.get('/search', (req, res) => {
+
+  var checking = checkQuery(req.query);
+  console.log(checking, "checking");
+  if(checking){
+    console.log(123);
+    res.status(400).send({ error: checking });
+    res.end();
+    return;
+  }
   const contentType = req.headers.accept || 'application/json';
-  console.log(req.query);
-  // return;
   request({
     url: 'https://api.foursquare.com/v2/venues/search',
     method: "GET",
@@ -55,13 +63,11 @@ app.get('/search', (req, res) => {
       query.lat = req.query.lat;
       query.lng = req.query.lng;
       query.radius = req.query.radius;
-      // query.distance = response.body.
       query.save();
 
       const resVenues = [];
       const venues = JSON.parse(response.body).response.venues;
-      // res.send(JSON.parse(response.body));
-      // return;
+
       for(var i = 0; i < venues.length; i++){
         resVenues.push({
           name: venues[i].name,
@@ -70,9 +76,8 @@ app.get('/search', (req, res) => {
           lat: venues[i].location.lat,
           lng: venues[i].location.lng,
         })
-      }
-      // console.log(resVenues);
-      // return;
+      };
+
       if(contentType == 'application/json'){
         res.send(resVenues);
 
