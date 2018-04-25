@@ -5,7 +5,7 @@ module.exports = function(obj) {
     return 'term is not string';
   }
   if(!+obj.lat || !+obj.lng){
-    return 'lat or lng is not a number';
+    return 'lat or lng is not a number!';
   }
 
   if(!+obj.radius){
