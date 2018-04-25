@@ -18,9 +18,9 @@ const querySchema = new Schema({
     type: Date,
     default: Date.now()
   },
-  distance: {
-    type: String
-    // required: true
+  radius: {
+    type: String,
+    required: true
   }
 });
 

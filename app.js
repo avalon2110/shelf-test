@@ -3,6 +3,7 @@ const request = require('request');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const config = require('./config');
+const csv = require('./csv');
 const app = express();
 
 app.use(bodyParser.json());
@@ -29,6 +30,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/search', (req, res) => {
+  const contentType = req.headers.accept || 'application/json';
   console.log(req.query);
   // return;
   request({
@@ -38,6 +40,7 @@ app.get('/search', (req, res) => {
       client_id: config.client_id,
       client_secret: config.client_secret,
       ll: req.query.lat + ',' + req.query.lng,
+      radius: req.query.radius,
       // ll: '40.7243,-74.0018',
       v: '20180323',
       query: req.params.term,
@@ -51,9 +54,33 @@ app.get('/search', (req, res) => {
       query.query = req.query.term;
       query.lat = req.query.lat;
       query.lng = req.query.lng;
+      query.radius = req.query.radius;
       // query.distance = response.body.
       query.save();
-      res.send(JSON.parse(response.body));
+
+      const resVenues = [];
+      const venues = JSON.parse(response.body).response.venues;
+      // res.send(JSON.parse(response.body));
+      // return;
+      for(var i = 0; i < venues.length; i++){
+        resVenues.push({
+          name: venues[i].name,
+          city: venues[i].location.city || 'no city',
+          street: venues[i].location.formattedAddress.join(', ') || 'no adress',
+          lat: venues[i].location.lat,
+          lng: venues[i].location.lng,
+        })
+      }
+      // console.log(resVenues);
+      // return;
+      if(contentType == 'application/json'){
+        res.send(resVenues);
+
+      } else if(contentType == 'text/csv'){
+        res.set('Content-Type', 'text/csv');
+        res.send(csv(resVenues));
+      }
+      res.end();
     }
   })
 })
